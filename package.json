@@ -1,0 +1,27 @@
+{
+  "name": "full-backend-zero",
+  "version": "1.0.0",
+  "description": "Learn NodeJs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/16tien/Learn-NodeJs.git"
+  },
+  "keywords": [
+    "nodejs",
+    "react"
+  ],
+  "author": "Tien",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/16tien/Learn-NodeJs/issues"
+  },
+  "homepage": "https://github.com/16tien/Learn-NodeJs#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
