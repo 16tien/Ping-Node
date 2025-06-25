@@ -5,19 +5,11 @@ const configViewEngine = require('./config/viewEngine')
 const webRoutes = require('./routes/web')
 const app = express();
 const port = process.env.PORT || 8888;
-const mysql = require('mysql2')
+const connection = require('./config/database')
 //config template engine
 configViewEngine(app)
 app.use('/',webRoutes)
 
-//test connection
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    database: 'hoidanit',
-    port: 3307,
-    password: '123456'
-});
 
 connection.query(
     'select * from Users u',
