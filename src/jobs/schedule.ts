@@ -3,7 +3,7 @@ import cronConfig from '../config/cronConfig';
 import runPingJob from './pingJob';
 
 const startScheduler = () => {
-  const schedule = `*/${cronConfig.repeatMinute} ${cronConfig.hourStart}-${cronConfig.hourEnd} * * *`;
+  const schedule = `*/${cronConfig.repeatMinute} ${cronConfig.startTime}-${cronConfig.endTime} * * *`;
 
   console.log(`✅ Scheduler đã khởi động với lịch: ${schedule}`);
 

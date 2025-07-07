@@ -17,14 +17,11 @@ export const verifyToken = (
   res: Response,
   next: NextFunction
 ) => {
-  const header = req.headers["authorization"];
-  if (!header) {
-    return res.status(401).json({ message: "No token provided" });
-  }
+  const token = req.cookies?.accessToken;
 
-  const [type, token] = header.split(" ");
-  if (type !== "Bearer" || !token) {
-    return res.status(401).json({ message: "Invalid authorization format" });
+  if (!token) {
+    res.status(401).json({ message: "No access token provided" });
+    return;
   }
 
   try {
@@ -32,6 +29,8 @@ export const verifyToken = (
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ message: "Invalid or expired token" });
+    res.status(403).json({ message: "Invalid or expired access token" });
+    return;
   }
 };
+

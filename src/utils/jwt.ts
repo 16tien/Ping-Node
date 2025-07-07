@@ -6,7 +6,7 @@ dotenv.config();
 const ACCESS_SECRET: Secret = process.env.ACCESS_SECRET || "access_default";
 const REFRESH_SECRET: Secret = process.env.REFRESH_SECRET || "refresh_default";
 
-const ACCESS_TOKEN_EXPIRES_IN = "15m";
+const ACCESS_TOKEN_EXPIRES_IN = "10s";
 const REFRESH_TOKEN_EXPIRES_IN = "7d";
 
 export const signAccessToken = (payload: object): string => {
