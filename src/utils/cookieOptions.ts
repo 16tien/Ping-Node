@@ -8,5 +8,5 @@ export const COOKIE_OPTIONS = {
 
 export const ACCESS_TOKEN_COOKIE_OPTIONS = {
   ...COOKIE_OPTIONS,
-  maxAge: 15 * 60 * 1000,
+  maxAge: 10 * 1000, 
 };

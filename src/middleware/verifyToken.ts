@@ -20,17 +20,17 @@ export const verifyToken = (
   const token = req.cookies?.accessToken;
 
   if (!token) {
-    res.status(401).json({ message: "No access token provided" });
-    return;
-  }
+  res.status(403).json({ message: "No access token provided" });
+  return;
+}
 
-  try {
-    const decoded = jwt.verify(token, ACCESS_SECRET) as JwtPayload;
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(403).json({ message: "Invalid or expired access token" });
-    return;
-  }
+try {
+  const decoded = jwt.verify(token, ACCESS_SECRET) as JwtPayload;
+  req.user = decoded;
+  next();
+} catch (err) {
+  res.status(401).json({ message: "Invalid or expired access token" });
+  return;
+}
 };
 

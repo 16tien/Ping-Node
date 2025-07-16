@@ -1,14 +1,14 @@
 import ping from 'ping';
 
-export const checkPing = async (IP: string): Promise<void> => {
+export const checkPing = async (IP: string): Promise<Boolean> => {
   try {
     const res = await ping.promise.probe(IP, { timeout: 5 });
     if (res.alive) {
-      console.log(`[${new Date().toLocaleString()}] ${IP} is reachable`);
+      return true
     } else {
-      console.log(`[${new Date().toLocaleString()}] ${IP} is unreachable`);
+      return false
     }
   } catch (err) {
-    console.error(`[${new Date().toLocaleString()}] Error pinging ${IP}:`, err);
+    return false
   }
 };

@@ -25,7 +25,7 @@ db.run(`
     name TEXT,
     ip_address TEXT UNIQUE NOT NULL,
     manager_user_id INTEGER,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT (datetime('now', 'localtime')),
     FOREIGN KEY (manager_user_id) REFERENCES users(id)
   )
 `);
@@ -35,9 +35,8 @@ db.run(`
   CREATE TABLE IF NOT EXISTS ping_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     device_id INTEGER,
-    ping_time DATETIME NOT NULL,
-    status TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status INTEGET NOT NULL,
+    ping_time DATETIME DEFAULT (datetime('now', 'localtime')),
     FOREIGN KEY (device_id) REFERENCES devices(id)
   )
 `);
