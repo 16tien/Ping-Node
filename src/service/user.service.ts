@@ -32,19 +32,19 @@ const loginService = async (
   const user = await User.findByEmail(email);
 
   if (!user) {
-    throw new Error("E1: Invalid email or password");
+    throw new Error("Invalid email or password");
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    throw new Error("E2: Invalid email or password");
+    throw new Error("Invalid email or password");
   }
 
   const payload = { id: user.id, role: user.role };
 
   const accessToken = signAccessToken(payload);
   const refreshToken = signRefreshToken({ id: user.id });
-    
+
   await User.saveRefreshToken(user.id, refreshToken);
 
   return {
@@ -71,10 +71,10 @@ async function refreshTokenService(refreshToken: string): Promise<string> {
     throw new Error("Invalid refresh token signature");
   }
 
-  const user = await User.getUserByRefreshToken(refreshToken);
+  const user = await User.findById(decoded.id);
 
-  if (!user) {
-    throw new Error("Refresh token not found or revoked");
+  if (!user || user.refreshToken !== refreshToken) {
+    throw new Error("Refresh token mismatch or revoked");
   }
 
   const newAccessToken = signAccessToken({
@@ -85,8 +85,23 @@ async function refreshTokenService(refreshToken: string): Promise<string> {
   return newAccessToken;
 }
 
+const deleteRefreshToken = async (refreshToken: string): Promise<void> => {
+  let decoded;
+  try {
+    decoded = verifyRefreshToken(refreshToken) as { id: number; };
+
+  } catch (err) {
+    throw new Error("Invalid refresh token signature");
+  }
+  const userId = decoded.id
+  await User.deleteRefreshToken(userId);
+
+}
+
+
 export default {
   registerUserService,
   loginService,
-  refreshTokenService
+  refreshTokenService,
+  deleteRefreshToken
 }

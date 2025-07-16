@@ -53,4 +53,29 @@ const checkAuth = async (req: Request, res: Response) => {
   });
 };
 
-export { handleLogin, refresh, checkAuth };
+const logout = async (req: Request, res: Response) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+      await userService.deleteRefreshToken(refreshToken)
+    }
+
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    res.status(200).json({ message: "Logout successful" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error during logout" });
+  }
+};
+
+export { handleLogin, refresh, checkAuth, logout };

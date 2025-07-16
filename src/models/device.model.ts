@@ -1,7 +1,4 @@
-import sqlite3 from "sqlite3";
-sqlite3.verbose();
-
-const db = new sqlite3.Database("./mydb.sqlite");
+import db from '../config/database';
 
 // interface để type-safe
 export interface DeviceData {
@@ -76,6 +73,17 @@ class Device {
       );
     });
   }
+
+  static findAllIdAndIP(): Promise<Array<{ id: number; ip_address: string }>> {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT id, ip_address FROM devices`;
+      db.all(query, [], (err, rows) => {
+        if (err) return reject(err);
+        resolve(rows as Array<{ id: number; ip_address: string }>);
+      });
+    });
+  }
+
 }
 
 export default Device;
