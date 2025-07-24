@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import cronConfig from '../config/cronConfig';
-import runPingJob from './pingJob';
+import cronConfig from './cronConfig';
+import runPingJob from '../utils/pingJob';
 
 const startScheduler = () => {
   const schedule = `*/${cronConfig.repeatMinute} ${cronConfig.startTime}-${cronConfig.endTime} * * *`;

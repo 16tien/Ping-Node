@@ -11,7 +11,8 @@ const handleLogin = async (req: Request, res: Response): Promise<void> => {
     res.cookie("refreshToken", refreshToken, COOKIE_OPTIONS);
 
     res.status(200).json({ message, user });
-    console.log(`User ${email} logged in`);
+
+  
   } catch (err: any) {
     console.error("Login error:", err.message);
     res.status(400).json({ message: err.message });
@@ -65,11 +66,13 @@ const logout = async (req: Request, res: Response) => {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
+      path: "/",
     });
     res.clearCookie("refreshToken", {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
+      path: "/",
     });
 
     res.status(200).json({ message: "Logout successful" });

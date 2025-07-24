@@ -6,7 +6,6 @@ const db = new sqlite3.Database("./mydb.sqlite", (err) => {
   else console.log("Connected to SQLite");
 });
 
-// khởi tạo bảng users
 db.run(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,11 +17,11 @@ db.run(`
   )
 `);
 
-// khởi tạo bảng devices
 db.run(`
   CREATE TABLE IF NOT EXISTS devices (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
+    address TEXT,
     ip_address TEXT UNIQUE NOT NULL,
     manager_user_id INTEGER,
     created_at DATETIME DEFAULT (datetime('now', 'localtime')),
@@ -30,7 +29,6 @@ db.run(`
   )
 `);
 
-// khởi tạo bảng ping_logs
 db.run(`
   CREATE TABLE IF NOT EXISTS ping_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

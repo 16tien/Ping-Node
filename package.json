@@ -1,7 +1,7 @@
 {
-  "name": "full-backend-zero",
+  "name": "ping-node",
   "version": "1.0.0",
-  "description": "Learn NodeJs",
+  "description": "NodeJs",
   "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -29,6 +29,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^4.1.1",
+    "nodemailer": "^7.0.5",
     "ping": "^0.4.4",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7"
@@ -40,6 +41,7 @@
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.0.7",
+    "@types/nodemailer": "^6.4.17",
     "@types/ping": "^0.4.4",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

@@ -18,10 +18,11 @@ export interface LoginResult {
 const registerUserService = async (
   name: string,
   email: string,
-  password: string
+  password: string, 
+  role: string
 ): Promise<UserType> => {
   const hashed = await bcrypt.hash(password, saltRounds);
-  const user = await User.createUser(name, email, hashed, "user");
+  const user = await User.createUser(name, email, hashed, role );
   return user;
 };
 
@@ -97,11 +98,40 @@ const deleteRefreshToken = async (refreshToken: string): Promise<void> => {
   await User.deleteRefreshToken(userId);
 
 }
+const getUserByIdService = async (id: number): Promise<UserType | null> => {
+  const user = await User.findById(id);
+  if (!user) throw new Error("User not found");
 
+  const { refreshToken, ...userWithoutToken } = user;
+  return userWithoutToken;
+};
+
+const getAllUsersNameService = async (): Promise<{ id: number; name: string }[]> => {
+  return await User.findAllBasicInfo();
+};
+
+
+const getAllUsersService = async (
+  params: Record<string, string>,
+  limit: number,
+  offset: number
+): Promise<{ users: Omit<UserType, 'password' | 'refreshToken'>[]; total: number }> => {
+  const { users, total } = await User.findUsersWithPagination(params, limit, offset);
+
+  const usersWithoutSensitiveFields = users.map(({ password, refreshToken, ...safe }) => safe);
+
+  return {
+    users: usersWithoutSensitiveFields,
+    total,
+  };
+};
 
 export default {
   registerUserService,
   loginService,
   refreshTokenService,
-  deleteRefreshToken
+  deleteRefreshToken,
+  getUserByIdService,
+  getAllUsersNameService,
+  getAllUsersService
 }

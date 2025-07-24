@@ -34,3 +34,16 @@ try {
 }
 };
 
+export const authorizeRole = (...allowedRoles: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    const userRole = req.user?.role;
+
+    if (!userRole || !allowedRoles.includes(userRole)) {
+      res.status(403).json({ message: "Access denied" });
+      return; 
+    }
+    next();
+  };
+};
+
+

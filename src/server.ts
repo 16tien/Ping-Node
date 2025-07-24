@@ -4,7 +4,10 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import userRoutes from './routes/user.route';
 import authRoutes from './routes/auth.route';
-import startCrons from './jobs/schedule';
+import pingRoutes from './routes/ping.route';
+import startCrons from './config/schedule';
+import deviceRoutes from './routes/device.route';
+
 
 dotenv.config();
 
@@ -22,8 +25,11 @@ app.use(cookieParser());
 
 startCrons();
 
+app.use('/api', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/', authRoutes);
+app.use('/api/devices', deviceRoutes)
+app.use('/api/pings', pingRoutes)
+
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);

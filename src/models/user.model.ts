@@ -87,7 +87,58 @@ class UserModel {
         }
       );
     });
-  } 
+  }
+  static findAllBasicInfo(role?: string): Promise<{ id: number; name: string }[]> {
+    return new Promise((resolve, reject) => {
+      const query = role
+        ? `SELECT id, name FROM users WHERE role = ?`
+        : `SELECT id, name FROM users`;
+
+      const params = role ? [role] : [];
+
+      db.all(query, params, (err, rows) => {
+        if (err) return reject(err);
+        resolve(rows as any);
+      });
+    });
+  }
+
+  static findUsersWithPagination(
+    params: Record<string, string>,
+    limit: number,
+    offset: number
+  ): Promise<{ users: UserType[]; total: number }> {
+    return new Promise((resolve, reject) => {
+      let query = `SELECT * FROM users`;
+      let countQuery = `SELECT COUNT(*) as total FROM users`;
+      const queryParams: any[] = [];
+      const countParams: any[] = [];
+
+      if (params.keyword) {
+        query += ` WHERE name LIKE ? OR email LIKE ?`;
+        countQuery += ` WHERE name LIKE ? OR email LIKE ?`;
+        const keywordPattern = `%${params.keyword}%`;
+        queryParams.push(keywordPattern, keywordPattern);
+        countParams.push(keywordPattern, keywordPattern);
+      }
+
+      query += ` ORDER BY id DESC LIMIT ? OFFSET ?`;
+      queryParams.push(limit, offset);
+
+      db.all(query, queryParams, (err, rows) => {
+        if (err) return reject(err);
+
+        db.get(countQuery, countParams, (err2, countRow) => {
+          if (err2) return reject(err2);
+
+          const total = (countRow as { total: number })?.total ?? 0;
+          resolve({ users: rows as UserType[], total });
+        });
+      });
+    });
+  }
+
 }
+
 
 export default UserModel;
