@@ -38,5 +38,14 @@ db.run(`
     FOREIGN KEY (device_id) REFERENCES devices(id)
   )
 `);
-
+db.run(`
+  CREATE TABLE IF NOT EXISTS status_changes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    device_id INTEGER NOT NULL,
+    old_status INTEGER NOT NULL,
+    new_status INTEGER NOT NULL,
+    changed_at DATETIME DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (device_id) REFERENCES devices(id)
+  )
+`);
 export default db;

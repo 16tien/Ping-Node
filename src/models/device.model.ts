@@ -35,7 +35,7 @@ class DeviceModel {
     `;
       db.all(sql, [...params, limit, offset], (err, rows) => {
         if (err) reject(err);
-        else resolve(rows);
+        else resolve(rows as { time: string; online: number; offline: number }[]);
       });
     });
   };
@@ -169,7 +169,7 @@ static updateById(id: number, data: {
       return reject(new Error("Không có trường nào được cập nhật."));
     }
 
-    params.push(id); // id là tham số cuối
+    params.push(id); 
 
     const query = `
       UPDATE devices
@@ -192,6 +192,88 @@ static updateById(id: number, data: {
     });
   });
 }
+
+static getChartData(): Promise<{ time: string; online: number; offline: number }[]> {
+    return new Promise((resolve, reject) => {
+      db.all(
+        `
+        SELECT 
+          strftime('%H:%M', ping_time) as time,
+          SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as online,
+          SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as offline
+        FROM ping_logs
+        WHERE ping_time >= datetime('now', '-11 hours')   -- lấy trong 11h gần nhất (132 điểm)
+        GROUP BY strftime('%H:%M', (ping_time))
+        ORDER BY ping_time ASC
+        `,
+        [],
+        (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows as { time: string; online: number; offline: number }[]);
+        }
+      );
+    });
+  }
+    static getDeviceStatusSummary(): Promise<{ online: number; offline: number }> {
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT 
+            SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as online,
+            SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as offline
+         FROM ping_logs
+         WHERE ping_time >= datetime('now', '-5 minutes')`,
+        [],
+        (err, row) => {
+          if (err) reject(err);
+          else resolve(row as { online: number; offline: number });
+        }
+      );
+    });
+  }
+   static getRecentOfflineDevices(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      db.all(
+        `SELECT d.id, d.name, d.ip_address, MAX(p.ping_time) as time
+         FROM devices d
+         JOIN ping_logs p ON d.id = p.device_id
+         WHERE p.status = 0
+         GROUP BY d.id
+         ORDER BY time DESC
+         LIMIT 10`,
+        [],
+        (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        }
+      );
+    });
+  }
+ static getRecentLogs(): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      db.all(
+        `SELECT d.name, d.ip_address, p.status, p.ping_time
+         FROM ping_logs p
+         JOIN devices d ON d.id = p.device_id
+         ORDER BY p.id DESC
+         LIMIT 10`,
+        [],
+        (err, rows: any[]) => {
+          if (err) reject(err);
+          else {
+            const logs = rows.map((r: { name: string; ip_address: string; status: number; ping_time: string }) => {
+              const time = `[${new Date(r.ping_time).toLocaleTimeString()}]`;
+              if (r.status === 0)
+                return `${time} Thiết bị ${r.name} mất kết nối (IP: ${r.ip_address})`;
+              else
+                return `${time} Thiết bị ${r.name} hoạt động trở lại (IP: ${r.ip_address})`;
+            });
+            resolve(logs);
+          }
+        }
+      );
+    });
+  }
+
 }
 
 export default DeviceModel;

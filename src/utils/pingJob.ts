@@ -1,10 +1,24 @@
 import { checkPing } from './pinger';
 import Device from "../models/device.model";
 import PingLog from "../models/ping.model"
-import {DeviceStatus} from "./enum"
+import { DeviceStatus } from "./enum"
 import { sendAlertEmail } from './sendEmail';
 import { getDeviceByIdService } from '../service/device.service';
 import userService from '../service/user.service';
+import StatusChange from '../models/statusChange.model';
+
+const handleStatusChange = async (deviceId: number, newStatus: DeviceStatus) => {
+  const lastLog = await PingLog.findLastByDeviceId(deviceId);
+
+  if (lastLog && lastLog.status !== newStatus) {
+    await StatusChange.create({
+      device_id: deviceId,
+      old_status: lastLog.status,
+      new_status: newStatus
+    });
+    console.log(`Device ${deviceId} changed: ${lastLog.status} → ${newStatus}`);
+  }
+};
 
 const hanldeDevicePing = async (id: number, ip: string): Promise<void> => {
   try {
@@ -27,10 +41,11 @@ const hanldeDevicePing = async (id: number, ip: string): Promise<void> => {
       console.warn(`Manager with id ${device.manager_user_id} not found.`);
       return;
     }
+    const newStatus = isAlive ? DeviceStatus.ONLINE : DeviceStatus.OFFLINE;
 
-    // console.log(`Device ${id} (${ip}) is ${isAlive ? "online" : "offline"}`);
+    await PingLog.create(id, newStatus);
 
-    await PingLog.create(id, isAlive ? DeviceStatus.ONLINE : DeviceStatus.OFFLINE);
+    await handleStatusChange(id, newStatus);
 
     if (!isAlive) {
       const threeTimes = await PingLog.isOfflineLast3Pings(id);
@@ -43,14 +58,14 @@ const hanldeDevicePing = async (id: number, ip: string): Promise<void> => {
   }
 };
 const runPingJob = async (): Promise<void> => {
-    try {
-      const devices = await Device.findAllIdAndIP();
-      await Promise.all(
-        devices.map(({id,ip_address}) => hanldeDevicePing(id, ip_address))
-      )
-    } catch (error) {
-      
-    }
+  try {
+    const devices = await Device.findAllIdAndIP();
+    await Promise.all(
+      devices.map(({ id, ip_address }) => hanldeDevicePing(id, ip_address))
+    )
+  } catch (error) {
+
+  }
 };
 
 export default runPingJob;

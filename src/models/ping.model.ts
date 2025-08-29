@@ -2,6 +2,9 @@ import db from '../config/database';
 import { PingLogData } from '../data/PingLogData';
 
 class PingLog {
+  static getDeviceByIdService(deviceId: number) {
+    throw new Error('Method not implemented.');
+  }
   static create(device_id: number, status: number): Promise<{ id: number }> {
     return new Promise((resolve, reject) => {
       const stmt = `
@@ -23,8 +26,8 @@ class PingLog {
   }
 
   static isOfflineLast3Pings(device_id: number): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    const sql = `
+    return new Promise((resolve, reject) => {
+      const sql = `
       SELECT status
       FROM ping_logs
       WHERE device_id = ?
@@ -32,27 +35,27 @@ class PingLog {
       LIMIT 4
     `;
 
-    db.all(sql, [device_id], (err, rows) => {
-      if (err) return reject(err);
-      if (!rows || rows.length < 3) return resolve(false); 
+      db.all(sql, [device_id], (err, rows) => {
+        if (err) return reject(err);
+        if (!rows || rows.length < 3) return resolve(false);
 
-      const logs = rows as { status: number }[];
+        const logs = rows as { status: number }[];
 
-      const first3Offline = logs[0].status === 0 && logs[1].status === 0 && logs[2].status === 0;
+        const first3Offline = logs[0].status === 0 && logs[1].status === 0 && logs[2].status === 0;
 
-      if (!first3Offline) {
-        return resolve(false); 
-      }
+        if (!first3Offline) {
+          return resolve(false);
+        }
 
-      if (logs.length === 3) {
-        return resolve(true); 
-      }
+        if (logs.length === 3) {
+          return resolve(true);
+        }
 
-      const fourthStatus = logs[3].status;
-      return resolve(fourthStatus === 1);
+        const fourthStatus = logs[3].status;
+        return resolve(fourthStatus === 1);
+      });
     });
-  });
-}
+  }
 
 
 
@@ -126,7 +129,18 @@ class PingLog {
       });
     });
   }
-
+  static findLastByDeviceId(deviceId: number) {
+    return new Promise<any>((resolve, reject) => {
+      db.get(
+        `SELECT * FROM ping_logs WHERE device_id = ? ORDER BY id DESC LIMIT 1`,
+        [deviceId],
+        (err, row) => {
+          if (err) reject(err);
+          else resolve(row);
+        }
+      );
+    });
+  }
 
 
 }

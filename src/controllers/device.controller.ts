@@ -80,7 +80,6 @@ export const updateDeviceController = async (req: Request, res: Response) => {
     if (!updatedDevice) {
        res.status(404).json({ message: 'Device not found or could not be updated' });
     }
-
     res.json(updatedDevice);
   } catch (error) {
     console.error(error);
